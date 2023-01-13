@@ -41,16 +41,24 @@
     "node": ">=10"
   },
   "dependencies": {
-    "@bitauth/libauth": "^1.17.1"
+    "@bitauth/libauth": "^1.17.1",
+    "browser-or-node": "^2.1.1",
+    "events": "^3.3.0",
+    "json-rpc-2.0": "^1.4.2",
+    "tslog": "^4.7.1",
+    "typescript": "^4.9.4",
+    "ws": "^8.12.0",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/events": "^3.0.0",
+    "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
     "codecov": "^3.5.0",
-    "cspell": "^4.1.0",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
@@ -63,8 +71,7 @@
     "prettier": "^2.1.1",
     "standard-version": "^9.0.0",
     "ts-node": "^9.0.0",
-    "typedoc": "^0.19.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.9.4"
   },
   "files": [
     "build/main",

@@ -1,0 +1,143 @@
+import { EventEmitter } from 'events';
+import { WebSocket as WebSocketNode } from 'ws';
+import {
+  JSONRPCClient,
+  JSONRPCServer,
+  JSONRPCServerAndClient,
+} from 'json-rpc-2.0';
+import { isNode } from 'browser-or-node';
+import { KurentoError, KurentoErrorSchema } from './types/kurento-error';
+import { KurentoMethod, KurentoParams } from './types/kurento-params';
+import {
+  KurentoResponseSchema,
+  KurentoResponse,
+} from './types/kurento-response';
+import { KurentoEvent } from './types/kurento-event';
+import { Log, LogType } from './logger';
+
+export default class Rpc extends EventEmitter {
+  private logger: LogType;
+  private static instance: Rpc;
+  private ws: WebSocket | WebSocketNode;
+  private rpc: JSONRPCServerAndClient<void>;
+
+  private constructor(wsUri: string) {
+    super();
+    this.logger = Log.getLogInstance();
+    if (isNode) {
+      this.ws = new WebSocketNode(wsUri);
+    } else {
+      this.ws = new WebSocket(wsUri);
+    }
+
+    this.ws.onclose = () => {
+      this.logger.info('Web Socket is closed!');
+      this.rpc.rejectAllPendingRequests('Web Socket is closed');
+    };
+
+    this.ws.onmessage = (event: any) =>
+      this.rpc.receiveAndSend(JSON.parse(event.data.toString()));
+
+    //JSON-RPC
+    const rpcServer = new JSONRPCServer();
+    const rpcClient = new JSONRPCClient(async (jsonRPCRequest) => {
+      try {
+        await this.waitForOpenSocket();
+        this.ws.send(JSON.stringify(jsonRPCRequest));
+        return Promise.resolve();
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    });
+
+    this.rpc = new JSONRPCServerAndClient(rpcServer, rpcClient, {});
+
+    this.rpc.addMethod('onEvent', ({ value }) => {
+      this.logger.info(`Received onEvent request from kms`);
+      this.logger.debug(`Event: ${JSON.stringify(value)}`);
+      switch (value.type) {
+        case 'IceCandidateFound':
+          this.logger.info('Event Type:  IceCandidateFound');
+          const kurentoEvent: KurentoEvent = {
+            type: 'IceCandidateFound',
+            object: value.object,
+            data: {
+              candidate: value.data.candidate.candidate,
+              sdpMid: value.data.candidate.sdpMin,
+              sdpMLineIndex: value.data.candidate.sdpMLineIndex,
+            },
+          };
+          this.emit(kurentoEvent.type, kurentoEvent);
+          break;
+        default:
+          this.logger.warn('Unknown event');
+      }
+    });
+  }
+
+  static getInstance(kmsUri?: string) {
+    if (!Rpc.instance && kmsUri) {
+      Rpc.instance = new Rpc(kmsUri);
+    }
+    return Rpc.instance;
+  }
+
+  async kurentoRequest(
+    method: KurentoMethod,
+    params: KurentoParams
+  ): Promise<KurentoResponse | null> {
+    try {
+      this.logger.debug(
+        `Sending request method: ${method} and params: ${JSON.stringify(
+          params
+        )}`
+      );
+      const res = await this.rpc.request(method, params);
+      const parseResult = KurentoResponseSchema.safeParse(res);
+      if (parseResult.success) {
+        const response: KurentoResponse = parseResult.data;
+        this.logger.debug(`Received response: ${JSON.stringify(response)}`);
+        return response;
+      } else {
+        this.logger.warn(`Can't parse response: ${res}`);
+        return null;
+      }
+    } catch (e: any) {
+      const parseResult = KurentoErrorSchema.safeParse(e);
+      if (parseResult.success) {
+        const kurentoError: KurentoError = parseResult.data;
+        this.logger.warn(
+          `Received error with code: ${kurentoError.code} and message: ${kurentoError.message}!`
+        );
+      } else {
+        this.logger.error(`Received unknown error: ${JSON.stringify(e)}`);
+      }
+      return null;
+    }
+  }
+
+  close() {
+    this.logger.info('Closing websocket connection!');
+    this.ws.close();
+  }
+
+  private async waitForOpenSocket() {
+    return new Promise((resolve: (value: void) => void) => {
+      if (this.ws.readyState !== this.ws.OPEN) {
+        if (isNode) {
+          (this.ws as WebSocketNode).addEventListener('open', (_: any) => {
+            this.logger.info('Web Socket is opened!');
+            resolve();
+          });
+        } else {
+          (this.ws as WebSocket).addEventListener('open', (_: any) => {
+            this.logger.info('Web Socket is opened!');
+            resolve();
+          });
+        }
+      } else {
+        resolve();
+      }
+    });
+  }
+}

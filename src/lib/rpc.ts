@@ -12,7 +12,7 @@ import {
   KurentoResponseSchema,
   KurentoResponse,
 } from './types/kurento-response';
-import { KurentoEvent } from './types/kurento-event';
+import { KurentoEventSchema } from './types/kurento-event';
 import { Log, LogType } from './logger';
 
 export default class Rpc extends EventEmitter {
@@ -52,25 +52,17 @@ export default class Rpc extends EventEmitter {
 
     this.rpc = new JSONRPCServerAndClient(rpcServer, rpcClient, {});
 
-    this.rpc.addMethod('onEvent', ({ value }) => {
+    this.rpc.addMethod('onEvent', ({ value }: { value: unknown }) => {
       this.logger.info(`Received onEvent request from kms`);
       this.logger.debug(`Event: ${JSON.stringify(value)}`);
-      switch (value.type) {
-        case 'IceCandidateFound':
-          this.logger.info('Event Type:  IceCandidateFound');
-          const kurentoEvent: KurentoEvent = {
-            type: 'IceCandidateFound',
-            object: value.object,
-            data: {
-              candidate: value.data.candidate.candidate,
-              sdpMid: value.data.candidate.sdpMin,
-              sdpMLineIndex: value.data.candidate.sdpMLineIndex,
-            },
-          };
-          this.emit(kurentoEvent.type, kurentoEvent);
-          break;
-        default:
-          this.logger.warn('Unknown event');
+      const parseResult = KurentoEventSchema.safeParse(value);
+      if (!parseResult.success) {
+        this.logger.debug(`Error: ${parseResult.error}`);
+        this.logger.error("Can't parse incoming event");
+      } else {
+        const kurentoEvent = parseResult.data;
+        this.logger.info(`Event Type: ${kurentoEvent.type}`);
+        this.emit(kurentoEvent.type, kurentoEvent);
       }
     });
   }

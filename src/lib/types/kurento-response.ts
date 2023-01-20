@@ -1,8 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
+import { ElementConnectionSchema } from './core-types';
 
 export const KurentoResponseSchema = z.object({
-  value: z.optional(z.string().nullable()),
-  sessionId: z.optional(z.string()),
+  value: z
+    .union([z.string(), z.array(ElementConnectionSchema)])
+    .nullable()
+    .optional(),
+  sessionId: z.string().optional(),
 });
 
 export type KurentoResponse = z.infer<typeof KurentoResponseSchema>;

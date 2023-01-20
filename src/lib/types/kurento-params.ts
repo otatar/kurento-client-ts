@@ -1,4 +1,5 @@
 import { KurentoEventType } from './kurento-event';
+import { MediaType } from './core-types';
 
 export type KurentoMethod =
   | 'ping'
@@ -20,7 +21,6 @@ export type KurentoParams = {
     certificateKeyType?: CertificateKeyType;
     qosDscp?: DscpValue;
   };
-  //operationParams?: Record<string, string | number | null>;
   operationParams?: {
     offer?: string;
     sink?: string;
@@ -35,6 +35,7 @@ export type KurentoParams = {
     maxRetransmits?: number;
     protocol?: string;
     channelId?: string;
+    mediaType?: MediaType;
   };
   properties?: any;
   sessionId?: string;

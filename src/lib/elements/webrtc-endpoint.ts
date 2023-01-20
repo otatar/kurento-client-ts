@@ -1,3 +1,4 @@
+import { KurentoEventType } from '../types';
 import { KurentoParams } from '../types/kurento-params';
 import BaseElement from './base-element';
 
@@ -10,20 +11,7 @@ export class WebRtcEndpoint extends BaseElement {
     return this.objId;
   }
 
-  public async connect<T extends BaseElement>(element: T) {
-    this.logger.info(`Connecting ${this.objId} to ${element.getObjectId()}`);
-    const params: KurentoParams = {
-      object: this.objId,
-      operation: 'connect',
-      operationParams: {
-        sink: element.getObjectId(),
-      },
-      sessionId: this.sessionId,
-    };
-    return await this.rpc.kurentoRequest('invoke', params);
-  }
-
-  public async sendLocalOffer(offer: string) {
+  public async sendLocalOffer(offer: string): Promise<string | null> {
     this.logger.info('Sending local SDP offer');
     const params: KurentoParams = {
       object: this.objId,
@@ -35,7 +23,12 @@ export class WebRtcEndpoint extends BaseElement {
     };
     const res = await this.rpc.kurentoRequest('invoke', params);
     this.logger.info('Receive remote SDP offer');
-    return res?.value;
+    if (typeof res?.value === 'string') {
+      return res?.value;
+    } else {
+      this.logger.error('Something is wrong with expected response!');
+      return null;
+    }
   }
 
   public async gatherCandidates() {
@@ -49,10 +42,10 @@ export class WebRtcEndpoint extends BaseElement {
     return await this.rpc.kurentoRequest('invoke', params);
   }
 
-  public async subscribeForIceCandidateFound() {
+  public async subscribe(event: KurentoEventType) {
     this.logger.info('Subscribing for IceCandidateFound event');
     const params: KurentoParams = {
-      type: 'IceCandidateFound',
+      type: event,
       object: this.objId,
       sessionId: this.sessionId,
     };

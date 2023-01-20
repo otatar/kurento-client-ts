@@ -26,7 +26,7 @@ export default class KurentoClient {
       properties: {},
     };
     const res = await this.rpc.kurentoRequest('create', params);
-    if (res && res.value) {
+    if (res && res.value && typeof res.value === 'string') {
       return new MediaPipeline(res.value, res.sessionId);
     } else {
       return null;

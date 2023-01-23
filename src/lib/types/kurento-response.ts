@@ -10,3 +10,18 @@ export const KurentoResponseSchema = z.object({
 });
 
 export type KurentoResponse = z.infer<typeof KurentoResponseSchema>;
+
+const KurentoStringSchema = z.string().nullable().optional();
+
+export function generateResponseSchema<T = string>(valueSchema?: z.Schema<T>) {
+  if (valueSchema) {
+    return z.object({
+      value: valueSchema,
+      sessionId: z.string().optional(),
+    });
+  }
+  return z.object({
+    value: KurentoStringSchema,
+    sessionId: z.string().optional(),
+  });
+}

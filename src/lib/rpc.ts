@@ -8,12 +8,9 @@ import {
 import { isNode } from 'browser-or-node';
 import { KurentoError, KurentoErrorSchema } from './types/kurento-error';
 import { KurentoMethod, KurentoParams } from './types/kurento-params';
-import {
-  KurentoResponseSchema,
-  KurentoResponse,
-} from './types/kurento-response';
 import { KurentoEventSchema } from './types/kurento-event';
 import { Log, LogType } from './logger';
+import { z } from 'zod';
 
 export default class Rpc extends EventEmitter {
   private logger: LogType;
@@ -74,10 +71,11 @@ export default class Rpc extends EventEmitter {
     return Rpc.instance;
   }
 
-  async kurentoRequest(
+  async kurentoRequest<T>(
     method: KurentoMethod,
-    params: KurentoParams
-  ): Promise<KurentoResponse | null> {
+    params: KurentoParams,
+    responseSchema: z.Schema<T>
+  ): Promise<T | null> {
     try {
       this.logger.debug(
         `Sending request method: ${method} and params: ${JSON.stringify(
@@ -85,9 +83,9 @@ export default class Rpc extends EventEmitter {
         )}`
       );
       const res = await this.rpc.request(method, params);
-      const parseResult = KurentoResponseSchema.safeParse(res);
+      const parseResult = responseSchema.safeParse(res);
       if (parseResult.success) {
-        const response: KurentoResponse = parseResult.data;
+        const response = parseResult.data;
         this.logger.debug(`Received response: ${JSON.stringify(response)}`);
         return response;
       } else {

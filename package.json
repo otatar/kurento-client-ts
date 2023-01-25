@@ -5,7 +5,7 @@
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/YOUR_GITHUB_USER_NAME/kurento-client-ts",
+  "repository": "https://github.com/otatar/kurento-client-ts",
   "license": "MIT",
   "keywords": [],
   "scripts": {

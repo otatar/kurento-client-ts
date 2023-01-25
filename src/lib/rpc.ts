@@ -112,6 +112,7 @@ export default class Rpc extends EventEmitter {
   }
 
   private async waitForOpenSocket() {
+    this.logger.debug('Waiting for open websocket');
     return new Promise((resolve: (value: void) => void) => {
       if (this.ws.readyState !== this.ws.OPEN) {
         if (isNode) {
@@ -126,6 +127,7 @@ export default class Rpc extends EventEmitter {
           });
         }
       } else {
+        this.logger.debug('WebSocket is allready opened!');
         resolve();
       }
     });

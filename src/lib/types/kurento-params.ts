@@ -1,5 +1,5 @@
 import { KurentoEventType } from './kurento-event';
-import { MediaType } from './core-types';
+import { MediaProfile, MediaType } from './core-types';
 
 export type KurentoMethod =
   | 'ping'
@@ -10,7 +10,12 @@ export type KurentoMethod =
   | 'unsubscribe';
 
 export type KurentoParams = {
-  type?: 'MediaPipeline' | 'WebRtcEndpoint' | KurentoEventType;
+  type?:
+    | 'MediaPipeline'
+    | 'WebRtcEndpoint'
+    | 'PlayerEndpoint'
+    | 'RecorderEndpoint'
+    | KurentoEventType;
   object?: string;
   operation?: string;
   constructorParams?: {
@@ -20,6 +25,11 @@ export type KurentoParams = {
     useDataChannels?: boolean;
     certificateKeyType?: CertificateKeyType;
     qosDscp?: DscpValue;
+    uri?: string;
+    useEnodedMadia?: boolean;
+    networkCache?: number;
+    mediaProfile?: MediaProfile;
+    stopOnEndOfStream?: boolean;
   };
   operationParams?: {
     offer?: string;

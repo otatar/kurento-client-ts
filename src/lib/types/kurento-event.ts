@@ -7,6 +7,19 @@ const kurentoEventType = [
   'DataChannelOpened',
   'DataChannelClosed',
   'NewCandidatePairSelected',
+  'EndOfStream',
+  'Recording',
+  'Paused',
+  'Stopped',
+] as const;
+
+const iceComponentState = [
+  'DISCONNECTED',
+  'GATHERING',
+  'CONNECTING',
+  'CONNECTED',
+  'READY',
+  'FAILED',
 ] as const;
 
 export const KurentoEventSchema = z.object({
@@ -21,6 +34,18 @@ export const KurentoEventSchema = z.object({
           sdpMLineIndex: z.number(),
         })
       ),
+      candidatePair: z
+        .object({
+          streamId: z.string(),
+          componentId: z.number(),
+          localCandidate: z.string(),
+          remoteCandidate: z.string(),
+        })
+        .optional(),
+      streamId: z.string().optional(),
+      componentId: z.number().optional(),
+      state: z.enum(iceComponentState).optional(),
+      channelId: z.number().optional(),
     })
   ),
 });

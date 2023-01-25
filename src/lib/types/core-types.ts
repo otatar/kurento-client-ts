@@ -31,8 +31,23 @@ export const ElementConnectionSchema = z.object({
   sinkDescription: z.string().nullable(),
 });
 
+export const ElementConnectionsSchema = z.array(ElementConnectionSchema);
+
 export type ElementConnecton = z.infer<typeof ElementConnectionSchema>;
 
-export function isElementConnection(obj: unknown): obj is ElementConnecton {
-  return obj !== null && typeof obj === 'object';
-}
+const mediaProfile = [
+  'WEBM',
+  'MKV',
+  'MP4',
+  'WEBM_VIDEO_ONLY',
+  'WEBM_AUDIO_ONLY',
+  'MKV_VIDEO_ONLY',
+  'MKV_AUDIO_ONLY',
+  'MP4_VIDEO_ONLY',
+  'MP4_AUDIO_ONLY',
+  'JPEG_VIDEO_ONLY',
+  'KURENTO_SPLIT_RECORDER',
+  'FLV',
+] as const;
+
+export type MediaProfile = (typeof mediaProfile)[number];

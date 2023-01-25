@@ -1,4 +1,4 @@
-import { KurentoEventType } from '../types';
+import { generateResponseSchema, KurentoEventType } from '../types';
 import { KurentoParams } from '../types/kurento-params';
 import BaseElement from './base-element';
 
@@ -21,10 +21,14 @@ export class WebRtcEndpoint extends BaseElement {
       },
       sessionId: this.sessionId,
     };
-    const res = await this.rpc.kurentoRequest('invoke', params);
+    const res = await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema()
+    );
     this.logger.info('Receive remote SDP offer');
-    if (typeof res?.value === 'string') {
-      return res?.value;
+    if (res?.value) {
+      return res.value;
     } else {
       this.logger.error('Something is wrong with expected response!');
       return null;
@@ -39,7 +43,11 @@ export class WebRtcEndpoint extends BaseElement {
       sessionId: this.sessionId,
     };
 
-    return await this.rpc.kurentoRequest('invoke', params);
+    return await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema()
+    );
   }
 
   public async subscribe(event: KurentoEventType) {
@@ -49,7 +57,11 @@ export class WebRtcEndpoint extends BaseElement {
       object: this.objId,
       sessionId: this.sessionId,
     };
-    return await this.rpc.kurentoRequest('subscribe', params);
+    return await this.rpc.kurentoRequest(
+      'subscribe',
+      params,
+      generateResponseSchema()
+    );
   }
 
   public async addIceCandidate(candidate: RTCIceCandidate) {
@@ -65,7 +77,11 @@ export class WebRtcEndpoint extends BaseElement {
         },
       },
     };
-    return await this.rpc.kurentoRequest('invoke', params);
+    return await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema()
+    );
   }
 
   public async createDataChannel(dataChannelOpts?: {
@@ -81,7 +97,11 @@ export class WebRtcEndpoint extends BaseElement {
       operation: 'createDataChannel',
       operationParams: dataChannelOpts ? dataChannelOpts : {},
     };
-    const res = await this.rpc.kurentoRequest('invoke', params);
+    const res = await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema()
+    );
     this.logger.info(`Data Channel created, id ${res?.value}`);
     return res?.value;
   }
@@ -95,6 +115,10 @@ export class WebRtcEndpoint extends BaseElement {
         channelId: channelId,
       },
     };
-    return await this.rpc.kurentoRequest('invoke', params);
+    return await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema()
+    );
   }
 }

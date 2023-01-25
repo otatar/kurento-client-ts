@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="loopback.css" />
+    <title>Vite + TS</title>
+  </head>
+  <body>
+    <div id="app">
+      <h3>Kurento Loopback example</h3>
+      <div class="video-container">
+        <video
+          id="local-video"
+          width="640"
+          height="480"
+          autoplay
+          poster="webrtc.png"
+          muted
+        ></video>
+        <video
+          id="remote-video"
+          width="640"
+          height="480"
+          autoplay
+          poster="webrtc.png"
+        ></video>
+      </div>
+      <div class="call-control">
+        <button id="start-button">Start call</button>
+        <button id="stop-button">Stop call</button>
+      </div>
+    </div>
+    <script type="module" src="loopback.js"></script>
+  </body>
+</html>

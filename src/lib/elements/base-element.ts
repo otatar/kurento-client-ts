@@ -3,7 +3,11 @@ import Rpc from '../rpc';
 import { KurentoEvent } from '../types/kurento-event';
 import { KurentoParams } from '../types/kurento-params';
 import { Log, LogType } from '../logger';
-import { isElementConnection, MediaType } from '../types';
+import {
+  ElementConnectionsSchema,
+  generateResponseSchema,
+  MediaType,
+} from '../types';
 
 export default class BaseElement extends EventEmitter {
   protected rpc: Rpc;
@@ -60,6 +64,38 @@ export default class BaseElement extends EventEmitter {
         this.emit('NewCandidatePairSelected', event);
       }
     });
+
+    this.rpc.on('EndOfStream', (event: KurentoEvent) => {
+      if (event.object && event.object == this.objId) {
+        //This event if for me, forward
+        this.logger.info('Received EndOfStream event');
+        this.emit('EndOfStream', event);
+      }
+    });
+
+    this.rpc.on('Recording', (event: KurentoEvent) => {
+      if (event.object && event.object == this.objId) {
+        //This event if for me, forward
+        this.logger.info('Received Recording event');
+        this.emit('Recording', event);
+      }
+    });
+
+    this.rpc.on('Paused', (event: KurentoEvent) => {
+      if (event.object && event.object == this.objId) {
+        //This event if for me, forward
+        this.logger.info('Received Paused event');
+        this.emit('Paused', event);
+      }
+    });
+
+    this.rpc.on('Stopped', (event: KurentoEvent) => {
+      if (event.object && event.object == this.objId) {
+        //This event if for me, forward
+        this.logger.info('Received Stopped event');
+        this.emit('Stopped', event);
+      }
+    });
   }
 
   public getObjectId() {
@@ -72,7 +108,11 @@ export default class BaseElement extends EventEmitter {
       object: this.objId,
       sessionId: this.sessionId,
     };
-    return await this.rpc.kurentoRequest('release', params);
+    return await this.rpc.kurentoRequest(
+      'release',
+      params,
+      generateResponseSchema()
+    );
   }
 
   public async getSourceConnections(mediaType: MediaType) {
@@ -87,13 +127,12 @@ export default class BaseElement extends EventEmitter {
         mediaType: mediaType,
       },
     };
-    const res = await this.rpc.kurentoRequest('invoke', params);
-    if (isElementConnection(res?.value)) {
-      return res?.value;
-    } else {
-      this.logger.error('Something is wrong with expected response!');
-      return null;
-    }
+    const res = await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema(ElementConnectionsSchema)
+    );
+    return res?.value;
   }
 
   public async getSinkConnections(mediaType: MediaType) {
@@ -108,12 +147,12 @@ export default class BaseElement extends EventEmitter {
         mediaType: mediaType,
       },
     };
-    const res = await this.rpc.kurentoRequest('invoke', params);
-    if (isElementConnection(res?.value)) {
-      return res?.value;
-    } else {
-      this.logger.error('Something is wrong with expected response!');
-      return null;
-    }
+    const res = await this.rpc.kurentoRequest(
+      'invoke',
+      params,
+      generateResponseSchema(ElementConnectionsSchema)
+    );
+
+    return res?.value;
   }
 }

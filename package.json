@@ -41,8 +41,8 @@
   },
   "dependencies": {
     "@bitauth/libauth": "^1.17.1",
-    "browser-or-node": "^2.1.1",
     "events": "^3.3.0",
+    "isomorphic-ws": "^5.0.0",
     "json-rpc-2.0": "^1.4.2",
     "tslog": "^4.7.1",
     "typescript": "^4.9.4",

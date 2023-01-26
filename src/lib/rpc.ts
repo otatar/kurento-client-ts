@@ -1,11 +1,10 @@
 import { EventEmitter } from 'events';
-import { WebSocket as WebSocketNode } from 'ws';
+import WebSocket from 'isomorphic-ws';
 import {
   JSONRPCClient,
   JSONRPCServer,
   JSONRPCServerAndClient,
 } from 'json-rpc-2.0';
-import { isNode } from 'browser-or-node';
 import { KurentoError, KurentoErrorSchema } from './types/kurento-error';
 import { KurentoMethod, KurentoParams } from './types/kurento-params';
 import { KurentoEventSchema } from './types/kurento-event';
@@ -15,17 +14,14 @@ import { z } from 'zod';
 export default class Rpc extends EventEmitter {
   private logger: LogType;
   private static instance: Rpc;
-  private ws: WebSocket | WebSocketNode;
+  //private ws: WebSocket | WebSocketNode;
+  private ws: WebSocket;
   private rpc: JSONRPCServerAndClient<void>;
 
   private constructor(wsUri: string) {
     super();
     this.logger = Log.getLogInstance();
-    if (isNode) {
-      this.ws = new WebSocketNode(wsUri);
-    } else {
-      this.ws = new WebSocket(wsUri);
-    }
+    this.ws = new WebSocket(wsUri);
 
     this.ws.onclose = () => {
       this.logger.info('Web Socket is closed!');
@@ -115,17 +111,10 @@ export default class Rpc extends EventEmitter {
     this.logger.debug('Waiting for open websocket');
     return new Promise((resolve: (value: void) => void) => {
       if (this.ws.readyState !== this.ws.OPEN) {
-        if (isNode) {
-          (this.ws as WebSocketNode).addEventListener('open', (_: any) => {
-            this.logger.info('Web Socket is opened!');
-            resolve();
-          });
-        } else {
-          (this.ws as WebSocket).addEventListener('open', (_: any) => {
-            this.logger.info('Web Socket is opened!');
-            resolve();
-          });
-        }
+        this.ws.addEventListener('open', (_: any) => {
+          this.logger.info('Web Socket is opened!');
+          resolve();
+        });
       } else {
         this.logger.debug('WebSocket is allready opened!');
         resolve();

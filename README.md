@@ -1,6 +1,6 @@
 # kurento-client-ts
 
-A simple Kurento client library written in Typescript. This library is intended to work in browser and Node.js.
+A simple Kurento client library written in Typescript. This library is intended to work in browser and Node.js. Only a fraction of API offered by Kurento is currently supported: MediaPipeline, WebRtcEndpoint, PlayerEdnpoint, RecorderEndpoint...more to come in the future.
 
 - Browser and Node.js
 - First-class TypeScript support
@@ -60,6 +60,8 @@ const pipeline = await client.createMediaPipeline()
 ```
 
 ## Examples
+
+You can find examples of usage for browser and Node.js in examples folder. For browser, copy files in browser folder in new location, use some kind of bundler (tested with esbuild and rollup) to bundle js and serve loopback.html (using some sort of simple web server e.g http-server, vscode live-server). The idea for this loopback example was taken from official Kurento docs site.
 
 ## Build
 

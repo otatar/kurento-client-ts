@@ -1,6 +1,6 @@
 {
   "name": "kurento-client-ts",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A simple Kurento client library written in Typescript",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",

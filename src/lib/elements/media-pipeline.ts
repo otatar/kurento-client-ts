@@ -1,4 +1,8 @@
-import { KurentoParams } from '../types/kurento-params';
+import {
+  CertificateKeyType,
+  DscpValue,
+  KurentoParams,
+} from '../types/kurento-params';
 import BaseElement from './base-element';
 import { WebRtcEndpoint } from '../elements/webrtc-endpoint';
 import { generateResponseSchema, MediaProfile } from '../types';
@@ -10,12 +14,23 @@ export class MediaPipeline extends BaseElement {
     super(objId, sessionId);
   }
 
-  public async createWebRtcEndpoint() {
+  public async createWebRtcEndpoint(
+    recvonly = false,
+    sendonly = false,
+    useDataChannels = false,
+    certificateKeyType: CertificateKeyType = 'RSA',
+    qosDscp: DscpValue = 'NO_VALUE'
+  ) {
     this.logger.info('Creating WebRtc Endpoint');
     const params: KurentoParams = {
       type: 'WebRtcEndpoint',
       constructorParams: {
         mediaPipeline: this.objId,
+        recvonly,
+        sendonly,
+        useDataChannels,
+        certificateKeyType,
+        qosDscp,
       },
       properties: {},
       sessionId: this.sessionId,
@@ -27,7 +42,14 @@ export class MediaPipeline extends BaseElement {
       generateResponseSchema()
     );
     if (res && res.value) {
-      return new WebRtcEndpoint(res.value, res.sessionId);
+      return new WebRtcEndpoint(
+        res.value,
+        recvonly,
+        sendonly,
+        useDataChannels,
+        qosDscp,
+        res.sessionId
+      );
     } else {
       this.logger.error('Could not create WebRtc Endpoint!');
       return null;

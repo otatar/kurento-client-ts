@@ -30,6 +30,7 @@ export type KurentoParams = {
     networkCache?: number;
     mediaProfile?: MediaProfile;
     stopOnEndOfStream?: boolean;
+    latencyStats?: boolean;
   };
   operationParams?: {
     offer?: string;

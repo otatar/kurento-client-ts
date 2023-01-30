@@ -1,10 +1,32 @@
 import { generateResponseSchema, KurentoEventType } from '../types';
-import { KurentoParams } from '../types/kurento-params';
+import {
+  CertificateKeyType,
+  DscpValue,
+  KurentoParams,
+} from '../types/kurento-params';
 import BaseElement from './base-element';
 
 export class WebRtcEndpoint extends BaseElement {
-  constructor(objId: string, sessionID?: string) {
+  recvonly: boolean;
+  sendonly: boolean;
+  useDataChannels: boolean;
+  certificateKeyType: CertificateKeyType;
+  qosDscp: DscpValue;
+  constructor(
+    objId: string,
+    recvonly: boolean,
+    sendonly: boolean,
+    useDataChannels: boolean,
+    certificateKeyType: CertificateKeyType,
+    qosDscp: DscpValue,
+    sessionID?: string
+  ) {
     super(objId, sessionID);
+    this.recvonly = recvonly;
+    this.sendonly = sendonly;
+    this.useDataChannels = useDataChannels;
+    this.certificateKeyType = certificateKeyType;
+    this.qosDscp = qosDscp;
   }
 
   public getObjectId() {

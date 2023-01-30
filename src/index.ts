@@ -19,11 +19,13 @@ export default class KurentoClient {
     return await this.rpc.kurentoRequest('ping', {}, generateResponseSchema());
   }
 
-  async createMediaPipeline() {
+  async createMediaPipeline(latencyStats = true) {
     this.logger.info('Creating MediaPipeline');
     const params: KurentoParams = {
       type: 'MediaPipeline',
-      constructorParams: {},
+      constructorParams: {
+        latencyStats,
+      },
       properties: {},
     };
     const res = await this.rpc.kurentoRequest(

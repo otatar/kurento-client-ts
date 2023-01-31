@@ -2,8 +2,8 @@ import { generateResponseSchema, KurentoParams } from '../types';
 import BaseElement from './base-element';
 
 export class RecorderEndpoint extends BaseElement {
-  constructor(objId: string, sessionID?: string) {
-    super(objId, sessionID);
+  constructor(objId: string) {
+    super(objId);
   }
 
   public getObjectId() {
@@ -16,7 +16,6 @@ export class RecorderEndpoint extends BaseElement {
       object: this.objId,
       operation: 'record',
       operationParams: {},
-      sessionId: this.sessionId,
     };
 
     return await this.rpc.kurentoRequest(
@@ -32,7 +31,6 @@ export class RecorderEndpoint extends BaseElement {
       object: this.objId,
       operation: 'stop',
       operationParams: {},
-      sessionId: this.sessionId,
     };
 
     return await this.rpc.kurentoRequest(

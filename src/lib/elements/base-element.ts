@@ -12,7 +12,7 @@ import {
 export default class BaseElement extends EventEmitter {
   protected rpc: Rpc;
   protected logger: LogType;
-  constructor(protected objId: string, protected sessionId?: string) {
+  constructor(protected objId: string) {
     super();
     this.rpc = Rpc.getInstance();
     this.logger = Log.getLogInstance();
@@ -106,7 +106,6 @@ export default class BaseElement extends EventEmitter {
     this.logger.info(`Releasing media element: ${this.objId}`);
     const params: KurentoParams = {
       object: this.objId,
-      sessionId: this.sessionId,
     };
     return await this.rpc.kurentoRequest(
       'release',
@@ -121,7 +120,6 @@ export default class BaseElement extends EventEmitter {
     );
     const params: KurentoParams = {
       object: this.objId,
-      sessionId: this.sessionId,
       operation: 'getSourceConnections',
       operationParams: {
         mediaType: mediaType,
@@ -141,7 +139,6 @@ export default class BaseElement extends EventEmitter {
     );
     const params: KurentoParams = {
       object: this.objId,
-      sessionId: this.sessionId,
       operation: 'getSourceConnections',
       operationParams: {
         mediaType: mediaType,

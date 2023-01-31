@@ -12,9 +12,9 @@ import { Log, LogType } from './logger';
 import { z } from 'zod';
 
 export default class Rpc extends EventEmitter {
+  private sessionId: string | undefined;
   private logger: LogType;
   private static instance: Rpc;
-  //private ws: WebSocket | WebSocketNode;
   private ws: WebSocket;
   private rpc: JSONRPCServerAndClient<void>;
 
@@ -67,6 +67,10 @@ export default class Rpc extends EventEmitter {
     return Rpc.instance;
   }
 
+  setSessionid(sessionId: string) {
+    this.sessionId = sessionId;
+  }
+
   async kurentoRequest<T>(
     method: KurentoMethod,
     params: KurentoParams,
@@ -78,7 +82,13 @@ export default class Rpc extends EventEmitter {
           params
         )}`
       );
+      //Inject sessionId
+      if (this.sessionId) params = { ...params, sessionId: this.sessionId };
+
+      //Send request and wait for response
       const res = await this.rpc.request(method, params);
+
+      //Check result
       const parseResult = responseSchema.safeParse(res);
       if (parseResult.success) {
         const response = parseResult.data;

@@ -33,8 +33,9 @@ export default class KurentoClient {
       params,
       generateResponseSchema()
     );
-    if (res && res.value) {
-      return new MediaPipeline(res.value, res.sessionId);
+    if (res) {
+      if (res.sessionId) this.rpc.setSessionid(res.sessionId);
+      return new MediaPipeline(res.value);
     } else {
       return null;
     }

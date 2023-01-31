@@ -1,28 +1,33 @@
-import {
-  CertificateKeyType,
-  DscpValue,
-  KurentoParams,
-} from '../types/kurento-params';
+import { KurentoParams } from '../types/kurento-params';
 import BaseElement from './base-element';
 import { WebRtcEndpoint } from '../elements/webrtc-endpoint';
-import { generateResponseSchema, MediaProfile } from '../types';
+import {
+  generateResponseSchema,
+  MediaProfile,
+  WebRtcEndpointOptions,
+} from '../types';
 import { PlayerEndpoint } from './player-endpoint';
 import { RecorderEndpoint } from './recorder-endpoint';
 import { HubPort } from './hub-port';
+import { CompositeHub } from './composite-hub';
 
 export class MediaPipeline extends BaseElement {
-  constructor(objId: string, sessionId?: string) {
-    super(objId, sessionId);
+  constructor(objId: string) {
+    super(objId);
   }
 
   public async createWebRtcEndpoint(
-    recvonly = false,
-    sendonly = false,
-    useDataChannels = false,
-    certificateKeyType: CertificateKeyType = 'RSA',
-    qosDscp: DscpValue = 'NO_VALUE'
+    opts: WebRtcEndpointOptions = {
+      recvonly: false,
+      sendonly: false,
+      useDataChannels: false,
+      certificateKeyType: 'RSA',
+      qosDscp: 'NO_VALUE',
+    }
   ) {
     this.logger.info('Creating WebRtc Endpoint');
+    const { recvonly, sendonly, useDataChannels, certificateKeyType, qosDscp } =
+      opts;
     const params: KurentoParams = {
       type: 'WebRtcEndpoint',
       constructorParams: {
@@ -34,7 +39,6 @@ export class MediaPipeline extends BaseElement {
         qosDscp,
       },
       properties: {},
-      sessionId: this.sessionId,
     };
 
     const res = await this.rpc.kurentoRequest(
@@ -45,12 +49,11 @@ export class MediaPipeline extends BaseElement {
     if (res && res.value) {
       return new WebRtcEndpoint(
         res.value,
-        recvonly,
-        sendonly,
-        useDataChannels,
-        certificateKeyType,
-        qosDscp,
-        res.sessionId
+        recvonly!,
+        sendonly!,
+        useDataChannels!,
+        certificateKeyType!,
+        qosDscp!
       );
     } else {
       this.logger.error('Could not create WebRtc Endpoint!');
@@ -73,7 +76,6 @@ export class MediaPipeline extends BaseElement {
         networkCache: networkCache,
       },
       properties: {},
-      sessionId: this.sessionId,
     };
 
     const res = await this.rpc.kurentoRequest(
@@ -82,7 +84,7 @@ export class MediaPipeline extends BaseElement {
       generateResponseSchema()
     );
     if (res && res.value) {
-      return new PlayerEndpoint(res.value, res.sessionId);
+      return new PlayerEndpoint(res.value);
     } else {
       this.logger.error('Could not create Player Endpoint!');
       return null;
@@ -104,7 +106,6 @@ export class MediaPipeline extends BaseElement {
         stopOnEndOfStream: stopOnEndOfStream,
       },
       properties: {},
-      sessionId: this.sessionId,
     };
 
     const res = await this.rpc.kurentoRequest(
@@ -113,7 +114,7 @@ export class MediaPipeline extends BaseElement {
       generateResponseSchema()
     );
     if (res && res.value) {
-      return new RecorderEndpoint(res.value, res.sessionId);
+      return new RecorderEndpoint(res.value);
     } else {
       this.logger.error('Could not create Recorder Endpoint!');
       return null;
@@ -128,7 +129,6 @@ export class MediaPipeline extends BaseElement {
         mediaPipeline: this.objId,
       },
       properties: {},
-      sessionId: this.sessionId,
     };
 
     const res = await this.rpc.kurentoRequest(
@@ -137,7 +137,7 @@ export class MediaPipeline extends BaseElement {
       generateResponseSchema()
     );
     if (res && res.value) {
-      return new RecorderEndpoint(res.value, res.sessionId);
+      return new CompositeHub(res.value);
     } else {
       this.logger.error('Could not create Composite Hub!');
       return null;
@@ -157,7 +157,6 @@ export class MediaPipeline extends BaseElement {
       operationParams: {
         sink: destination.getObjectId(),
       },
-      sessionId: this.sessionId,
     };
     return await this.rpc.kurentoRequest(
       'invoke',
@@ -176,7 +175,6 @@ export class MediaPipeline extends BaseElement {
       operationParams: {
         sink: destination.getObjectId(),
       },
-      sessionId: this.sessionId,
     };
     return await this.rpc.kurentoRequest(
       'invoke',

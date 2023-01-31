@@ -1,9 +1,10 @@
-import { generateResponseSchema, KurentoEventType } from '../types';
 import {
   CertificateKeyType,
   DscpValue,
-  KurentoParams,
-} from '../types/kurento-params';
+  generateResponseSchema,
+  KurentoEventType,
+} from '../types';
+import { KurentoParams } from '../types/kurento-params';
 import BaseElement from './base-element';
 
 export class WebRtcEndpoint extends BaseElement {
@@ -18,10 +19,9 @@ export class WebRtcEndpoint extends BaseElement {
     sendonly: boolean,
     useDataChannels: boolean,
     certificateKeyType: CertificateKeyType,
-    qosDscp: DscpValue,
-    sessionID?: string
+    qosDscp: DscpValue
   ) {
-    super(objId, sessionID);
+    super(objId);
     this.recvonly = recvonly;
     this.sendonly = sendonly;
     this.useDataChannels = useDataChannels;
@@ -41,7 +41,6 @@ export class WebRtcEndpoint extends BaseElement {
       operationParams: {
         offer: offer,
       },
-      sessionId: this.sessionId,
     };
     const res = await this.rpc.kurentoRequest(
       'invoke',
@@ -62,7 +61,6 @@ export class WebRtcEndpoint extends BaseElement {
     const params: KurentoParams = {
       object: this.objId,
       operation: 'gatherCandidates',
-      sessionId: this.sessionId,
     };
 
     return await this.rpc.kurentoRequest(
@@ -77,7 +75,6 @@ export class WebRtcEndpoint extends BaseElement {
     const params: KurentoParams = {
       type: event,
       object: this.objId,
-      sessionId: this.sessionId,
     };
     return await this.rpc.kurentoRequest(
       'subscribe',

@@ -1,7 +1,7 @@
 import BaseHub from './base-hub';
 
-export class HubComposite extends BaseHub {
-  constructor(objId: string, sessionID?: string) {
-    super(objId, sessionID);
+export class CompositeHub extends BaseHub {
+  constructor(objId: string) {
+    super(objId);
   }
 }

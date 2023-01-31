@@ -6,7 +6,7 @@ import { HubPort } from './hub-port';
 export default class BaseHub {
   protected rpc: Rpc;
   protected logger: LogType;
-  constructor(protected objId: string, protected sessionId?: string) {
+  constructor(protected objId: string) {
     this.rpc = Rpc.getInstance();
     this.logger = Log.getLogInstance();
   }
@@ -20,10 +20,9 @@ export default class BaseHub {
     const params: KurentoParams = {
       type: 'HubPort',
       constructorParams: {
-        mediaPipeline: this.objId,
+        hub: this.objId,
       },
       properties: {},
-      sessionId: this.sessionId,
     };
 
     const res = await this.rpc.kurentoRequest(
@@ -44,7 +43,6 @@ export default class BaseHub {
     this.logger.info(`Releasing hub element: ${this.objId}`);
     const params: KurentoParams = {
       object: this.objId,
-      sessionId: this.sessionId,
     };
     return await this.rpc.kurentoRequest(
       'release',

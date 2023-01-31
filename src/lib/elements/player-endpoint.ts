@@ -2,8 +2,8 @@ import { generateResponseSchema, KurentoParams } from '../types';
 import BaseElement from './base-element';
 
 export class PlayerEndpoint extends BaseElement {
-  constructor(objId: string, sessionID?: string) {
-    super(objId, sessionID);
+  constructor(objId: string) {
+    super(objId);
   }
 
   public async play() {
@@ -12,7 +12,6 @@ export class PlayerEndpoint extends BaseElement {
       object: this.objId,
       operation: 'play',
       operationParams: {},
-      sessionId: this.sessionId,
     };
 
     return await this.rpc.kurentoRequest(

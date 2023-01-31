@@ -6,10 +6,6 @@ export class PlayerEndpoint extends BaseElement {
     super(objId, sessionID);
   }
 
-  public getObjectId() {
-    return this.objId;
-  }
-
   public async play() {
     this.logger.info('Sending play to player');
     const params: KurentoParams = {

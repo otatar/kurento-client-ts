@@ -15,6 +15,8 @@ export type KurentoParams = {
     | 'WebRtcEndpoint'
     | 'PlayerEndpoint'
     | 'RecorderEndpoint'
+    | 'Composite'
+    | 'HubPort'
     | KurentoEventType;
   object?: string;
   operation?: string;

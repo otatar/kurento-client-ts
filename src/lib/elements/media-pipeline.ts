@@ -8,6 +8,7 @@ import { WebRtcEndpoint } from '../elements/webrtc-endpoint';
 import { generateResponseSchema, MediaProfile } from '../types';
 import { PlayerEndpoint } from './player-endpoint';
 import { RecorderEndpoint } from './recorder-endpoint';
+import { HubPort } from './hub-port';
 
 export class MediaPipeline extends BaseElement {
   constructor(objId: string, sessionId?: string) {
@@ -47,6 +48,7 @@ export class MediaPipeline extends BaseElement {
         recvonly,
         sendonly,
         useDataChannels,
+        certificateKeyType,
         qosDscp,
         res.sessionId
       );
@@ -118,9 +120,33 @@ export class MediaPipeline extends BaseElement {
     }
   }
 
+  public async createComposite() {
+    this.logger.info('Creating Composite Hub');
+    const params: KurentoParams = {
+      type: 'Composite',
+      constructorParams: {
+        mediaPipeline: this.objId,
+      },
+      properties: {},
+      sessionId: this.sessionId,
+    };
+
+    const res = await this.rpc.kurentoRequest(
+      'create',
+      params,
+      generateResponseSchema()
+    );
+    if (res && res.value) {
+      return new RecorderEndpoint(res.value, res.sessionId);
+    } else {
+      this.logger.error('Could not create Composite Hub!');
+      return null;
+    }
+  }
+
   public async connect(
-    source: WebRtcEndpoint | PlayerEndpoint,
-    destination: WebRtcEndpoint | RecorderEndpoint
+    source: WebRtcEndpoint | PlayerEndpoint | HubPort,
+    destination: WebRtcEndpoint | RecorderEndpoint | HubPort
   ) {
     this.logger.info(
       `Connecting element: ${source.getObjectId()} to element: ${destination.getObjectId()}`

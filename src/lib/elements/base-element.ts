@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import Rpc from '../rpc';
-import { KurentoEvent } from '../types/kurento-event';
+import { KurentoEvent, KurentoEventType } from '../types/kurento-event';
 import { KurentoParams } from '../types/kurento-params';
 import { Log, LogType } from '../logger';
 import {
@@ -17,7 +17,7 @@ export default class BaseElement extends EventEmitter {
     this.rpc = Rpc.getInstance();
     this.logger = Log.getLogInstance();
 
-    this.rpc.on('IceCandidateFound', (event: KurentoEvent) => {
+    /*this.rpc.on('IceCandidateFound', (event: KurentoEvent) => {
       if (event.object && event.object == this.objId) {
         //This event if for me, forward
         this.logger.info('Received IceCandidateFound event');
@@ -95,11 +95,53 @@ export default class BaseElement extends EventEmitter {
         this.logger.info('Received Stopped event');
         this.emit('Stopped', event);
       }
-    });
+    });*/
   }
 
   public getObjectId() {
     return this.objId;
+  }
+
+  public async subscribe(event: KurentoEventType) {
+    this.logger.info(`Subscribing for ${event} event on element ${this.objId}`);
+
+    //Before request listen for this event from kms
+    this.rpc.on(event, (event: KurentoEvent) => {
+      if (event.object && event.object == this.objId) {
+        //This event if for me, forward
+        this.logger.info(`Received ${event.type} event`);
+        this.emit(event.type, event);
+      }
+    });
+
+    const params: KurentoParams = {
+      type: event,
+      object: this.objId,
+    };
+    const res = await this.rpc.kurentoRequest(
+      'subscribe',
+      params,
+      generateResponseSchema()
+    );
+
+    return res?.value;
+  }
+
+  public async unsubscribe(subscription: string, event: KurentoEventType) {
+    this.logger.info(
+      `Unsubscribing for ${event} event on element ${this.objId}`
+    );
+    const params: KurentoParams = {
+      subscription: subscription,
+      type: event,
+      object: this.objId,
+    };
+
+    return await this.rpc.kurentoRequest(
+      'unsubscribe',
+      params,
+      generateResponseSchema()
+    );
   }
 
   public async release() {
@@ -107,6 +149,7 @@ export default class BaseElement extends EventEmitter {
     const params: KurentoParams = {
       object: this.objId,
     };
+    this.rpc.removeAllListeners();
     return await this.rpc.kurentoRequest(
       'release',
       params,

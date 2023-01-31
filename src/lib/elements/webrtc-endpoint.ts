@@ -2,7 +2,6 @@ import {
   CertificateKeyType,
   DscpValue,
   generateResponseSchema,
-  KurentoEventType,
 } from '../types';
 import { KurentoParams } from '../types/kurento-params';
 import BaseElement from './base-element';
@@ -65,19 +64,6 @@ export class WebRtcEndpoint extends BaseElement {
 
     return await this.rpc.kurentoRequest(
       'invoke',
-      params,
-      generateResponseSchema()
-    );
-  }
-
-  public async subscribe(event: KurentoEventType) {
-    this.logger.info('Subscribing for IceCandidateFound event');
-    const params: KurentoParams = {
-      type: event,
-      object: this.objId,
-    };
-    return await this.rpc.kurentoRequest(
-      'subscribe',
       params,
       generateResponseSchema()
     );

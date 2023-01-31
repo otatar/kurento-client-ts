@@ -25,6 +25,7 @@ export type KurentoParams = {
     | KurentoEventType;
   object?: string;
   operation?: string;
+  subscription?: string;
   constructorParams?: {
     mediaPipeline?: string;
     hub?: string;

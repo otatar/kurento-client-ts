@@ -22,6 +22,7 @@ export default class Rpc extends EventEmitter {
     super();
     this.logger = Log.getLogInstance();
     this.ws = new WebSocket(wsUri);
+    this.setMaxListeners(100);
 
     this.ws.onclose = () => {
       this.logger.info('Web Socket is closed!');

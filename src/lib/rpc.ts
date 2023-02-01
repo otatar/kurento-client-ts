@@ -6,7 +6,14 @@ import {
   JSONRPCServerAndClient,
 } from 'json-rpc-2.0';
 import { KurentoError, KurentoErrorSchema } from './types/kurento-error';
-import { KurentoMethod, KurentoParams } from './types/kurento-params';
+import {
+  KurentoCreateParams,
+  KurentoInvokeParams,
+  KurentoMethod,
+  KurentoReleaseParams,
+  KurentoSubscribeParams,
+  KurentoUnsubscribeParams,
+} from './types/kurento-params';
 import { KurentoEventSchema } from './types/kurento-event';
 import { Log, LogType } from './logger';
 import { z } from 'zod';
@@ -74,7 +81,13 @@ export default class Rpc extends EventEmitter {
 
   async kurentoRequest<T>(
     method: KurentoMethod,
-    params: KurentoParams,
+    params:
+      | KurentoCreateParams
+      | KurentoInvokeParams
+      | KurentoReleaseParams
+      | KurentoSubscribeParams
+      | KurentoUnsubscribeParams
+      | {},
     responseSchema: z.Schema<T>
   ): Promise<T | null> {
     try {
@@ -83,11 +96,16 @@ export default class Rpc extends EventEmitter {
           params
         )}`
       );
-      //Inject sessionId
-      if (this.sessionId) params = { ...params, sessionId: this.sessionId };
+      //Inject
+      let paramsWithSessionId: typeof params & { sessionId?: string };
+      if (this.sessionId) {
+        paramsWithSessionId = { ...params, sessionId: this.sessionId };
+      } else {
+        paramsWithSessionId = params;
+      }
 
       //Send request and wait for response
-      const res = await this.rpc.request(method, params);
+      const res = await this.rpc.request(method, paramsWithSessionId);
 
       //Check result
       const parseResult = responseSchema.safeParse(res);

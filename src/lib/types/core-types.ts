@@ -8,6 +8,18 @@ export interface WebRtcEndpointOptions {
   qosDscp?: DscpValue;
 }
 
+export interface PlayerEndpointOptions {
+  uri: string;
+  useEncodeMedia?: boolean;
+  networkCache?: number;
+}
+
+export interface RecorderEndpointOptions {
+  uri: string;
+  mediaProfile?: MediaProfile;
+  stopOnEndOfStream?: boolean;
+}
+
 const mediaType = ['AUDIO', 'VIDEO', 'DATA'] as const;
 export type MediaType = (typeof mediaType)[number];
 

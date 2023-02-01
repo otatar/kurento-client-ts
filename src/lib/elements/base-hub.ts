@@ -1,6 +1,11 @@
 import { Log, LogType } from '../logger';
 import Rpc from '../rpc';
-import { generateResponseSchema, KurentoParams } from '../types';
+import {
+  KurentoCreateParams,
+  KurentoReleaseParams,
+  NoValueResponseSchema,
+  ValueStringResponseSchema,
+} from '../types';
 import { HubPort } from './hub-port';
 
 export default class BaseHub {
@@ -17,7 +22,7 @@ export default class BaseHub {
 
   public async createHubPort() {
     this.logger.info('Creating Hub Port');
-    const params: KurentoParams = {
+    const params: KurentoCreateParams = {
       type: 'HubPort',
       constructorParams: {
         hub: this.objId,
@@ -28,7 +33,7 @@ export default class BaseHub {
     const res = await this.rpc.kurentoRequest(
       'create',
       params,
-      generateResponseSchema()
+      ValueStringResponseSchema
     );
 
     if (res) {
@@ -41,13 +46,13 @@ export default class BaseHub {
 
   public async release() {
     this.logger.info(`Releasing hub element: ${this.objId}`);
-    const params: KurentoParams = {
+    const params: KurentoReleaseParams = {
       object: this.objId,
     };
     return await this.rpc.kurentoRequest(
       'release',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 }

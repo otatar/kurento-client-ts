@@ -1,8 +1,8 @@
-import { KurentoParams } from './lib/types/kurento-params';
+import { KurentoCreateParams } from './lib/types/kurento-params';
 import { MediaPipeline } from './lib/elements/media-pipeline';
 import { Log, LogType } from './lib/logger';
 import Rpc from './lib/rpc';
-import { generateResponseSchema } from './lib/types';
+import { PingResponseSchema, ValueStringResponseSchema } from './lib/types';
 
 export default class KurentoClient {
   private rpc: Rpc;
@@ -16,12 +16,12 @@ export default class KurentoClient {
 
   async ping() {
     this.logger.info('Ping request');
-    return await this.rpc.kurentoRequest('ping', {}, generateResponseSchema());
+    return await this.rpc.kurentoRequest('ping', {}, PingResponseSchema);
   }
 
   async createMediaPipeline(latencyStats = true) {
     this.logger.info('Creating MediaPipeline');
-    const params: KurentoParams = {
+    const params: KurentoCreateParams = {
       type: 'MediaPipeline',
       constructorParams: {
         latencyStats,
@@ -31,7 +31,7 @@ export default class KurentoClient {
     const res = await this.rpc.kurentoRequest(
       'create',
       params,
-      generateResponseSchema()
+      ValueStringResponseSchema
     );
     if (res) {
       if (res.sessionId) this.rpc.setSessionid(res.sessionId);

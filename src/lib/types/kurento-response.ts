@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { ElementConnectionSchema } from './core-types';
+//import { ElementConnectionSchema } from './core-types';
 
-export const KurentoResponseSchema = z.object({
+/*export const KurentoResponseSchema = z.object({
   value: z
     .union([z.string(), z.array(ElementConnectionSchema)])
     .nullable()
@@ -19,4 +19,24 @@ export function generateResponseSchema<T extends z.ZodTypeAny>(
     value: valueSchema ? valueSchema : KurentoStringSchema,
     sessionId: z.string().optional(),
   });
+}*/
+
+export function createResponseSchema<T>(schema: z.Schema<T>) {
+  return z.object({
+    value: schema,
+    sessionId: z.string(),
+  });
 }
+
+export const PingResponseSchema = z.object({
+  value: z.literal('pong'),
+});
+
+export const ValueStringResponseSchema = z.object({
+  value: z.string(),
+  sessionId: z.string(),
+});
+
+export const NoValueResponseSchema = z.object({
+  sessionId: z.string(),
+});

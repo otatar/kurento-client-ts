@@ -1,9 +1,10 @@
 import {
   CertificateKeyType,
   DscpValue,
-  generateResponseSchema,
+  NoValueResponseSchema,
+  ValueStringResponseSchema,
 } from '../types';
-import { KurentoParams } from '../types/kurento-params';
+import { KurentoInvokeParams } from '../types/kurento-params';
 import BaseElement from './base-element';
 
 export class WebRtcEndpoint extends BaseElement {
@@ -34,7 +35,7 @@ export class WebRtcEndpoint extends BaseElement {
 
   public async sendLocalOffer(offer: string): Promise<string | null> {
     this.logger.info('Sending local SDP offer');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'processOffer',
       operationParams: {
@@ -44,10 +45,10 @@ export class WebRtcEndpoint extends BaseElement {
     const res = await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      ValueStringResponseSchema
     );
     this.logger.info('Receive remote SDP offer');
-    if (res?.value) {
+    if (res) {
       return res.value;
     } else {
       this.logger.error('Something is wrong with expected response!');
@@ -57,21 +58,22 @@ export class WebRtcEndpoint extends BaseElement {
 
   public async gatherCandidates() {
     this.logger.info('Sending gatherCandidates');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'gatherCandidates',
+      operationParams: {},
     };
 
     return await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 
   public async addIceCandidate(candidate: RTCIceCandidate) {
     this.logger.info('Sending local ice candidate');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'addIceCandidate',
       operationParams: {
@@ -85,7 +87,7 @@ export class WebRtcEndpoint extends BaseElement {
     return await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 
@@ -97,7 +99,7 @@ export class WebRtcEndpoint extends BaseElement {
     protocol?: string;
   }) {
     this.logger.info('Sending createDataChannel');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'createDataChannel',
       operationParams: dataChannelOpts ? dataChannelOpts : {},
@@ -105,15 +107,20 @@ export class WebRtcEndpoint extends BaseElement {
     const res = await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      ValueStringResponseSchema
     );
-    this.logger.info(`Data Channel created, id ${res?.value}`);
-    return res?.value;
+    if (res) {
+      this.logger.info(`Data Channel created, id ${res.value}`);
+      return res.value;
+    } else {
+      this.logger.warn('Could not create Data Channel!');
+      return null;
+    }
   }
 
   public async closeDataChannel(channelId: string) {
     this.logger.info(`Closing data channel with id: ${channelId}`);
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'closeDataChannel',
       operationParams: {
@@ -123,7 +130,7 @@ export class WebRtcEndpoint extends BaseElement {
     return await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 }

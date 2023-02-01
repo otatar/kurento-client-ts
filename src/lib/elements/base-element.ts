@@ -1,12 +1,19 @@
 import { EventEmitter } from 'events';
 import Rpc from '../rpc';
 import { KurentoEvent, KurentoEventType } from '../types/kurento-event';
-import { KurentoParams } from '../types/kurento-params';
+import {
+  KurentoInvokeParams,
+  KurentoReleaseParams,
+  KurentoSubscribeParams,
+  KurentoUnsubscribeParams,
+} from '../types/kurento-params';
 import { Log, LogType } from '../logger';
 import {
+  createResponseSchema,
   ElementConnectionsSchema,
-  generateResponseSchema,
   MediaType,
+  NoValueResponseSchema,
+  ValueStringResponseSchema,
 } from '../types';
 
 export default class BaseElement extends EventEmitter {
@@ -114,24 +121,28 @@ export default class BaseElement extends EventEmitter {
       }
     });
 
-    const params: KurentoParams = {
+    const params: KurentoSubscribeParams = {
       type: event,
       object: this.objId,
     };
     const res = await this.rpc.kurentoRequest(
       'subscribe',
       params,
-      generateResponseSchema()
+      ValueStringResponseSchema
     );
 
-    return res?.value;
+    if (res) {
+      return res.value;
+    } else {
+      return null;
+    }
   }
 
   public async unsubscribe(subscription: string, event: KurentoEventType) {
     this.logger.info(
       `Unsubscribing for ${event} event on element ${this.objId}`
     );
-    const params: KurentoParams = {
+    const params: KurentoUnsubscribeParams = {
       subscription: subscription,
       type: event,
       object: this.objId,
@@ -140,20 +151,20 @@ export default class BaseElement extends EventEmitter {
     return await this.rpc.kurentoRequest(
       'unsubscribe',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 
   public async release() {
     this.logger.info(`Releasing media element: ${this.objId}`);
-    const params: KurentoParams = {
+    const params: KurentoReleaseParams = {
       object: this.objId,
     };
     this.rpc.removeAllListeners();
     return await this.rpc.kurentoRequest(
       'release',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 
@@ -161,7 +172,7 @@ export default class BaseElement extends EventEmitter {
     this.logger.info(
       `Getting source connections for medial element ${this.objId}`
     );
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'getSourceConnections',
       operationParams: {
@@ -171,7 +182,7 @@ export default class BaseElement extends EventEmitter {
     const res = await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema(ElementConnectionsSchema)
+      createResponseSchema(ElementConnectionsSchema)
     );
     return res?.value;
   }
@@ -180,7 +191,7 @@ export default class BaseElement extends EventEmitter {
     this.logger.info(
       `Getting sink connections for medial element ${this.objId}`
     );
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'getSourceConnections',
       operationParams: {
@@ -190,7 +201,7 @@ export default class BaseElement extends EventEmitter {
     const res = await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema(ElementConnectionsSchema)
+      createResponseSchema(ElementConnectionsSchema)
     );
 
     return res?.value;

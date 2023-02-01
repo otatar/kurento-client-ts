@@ -1,4 +1,4 @@
-import { generateResponseSchema, KurentoParams } from '../types';
+import { KurentoInvokeParams, NoValueResponseSchema } from '../types';
 import BaseElement from './base-element';
 
 export class RecorderEndpoint extends BaseElement {
@@ -12,7 +12,7 @@ export class RecorderEndpoint extends BaseElement {
 
   public async record() {
     this.logger.info('Starting recording');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'record',
       operationParams: {},
@@ -21,13 +21,13 @@ export class RecorderEndpoint extends BaseElement {
     return await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 
   public async stop() {
     this.logger.info('Stop recording');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'stop',
       operationParams: {},
@@ -36,7 +36,7 @@ export class RecorderEndpoint extends BaseElement {
     return await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 }

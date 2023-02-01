@@ -1,4 +1,4 @@
-import { generateResponseSchema, KurentoParams } from '../types';
+import { KurentoInvokeParams, NoValueResponseSchema } from '../types';
 import BaseElement from './base-element';
 
 export class PlayerEndpoint extends BaseElement {
@@ -8,7 +8,7 @@ export class PlayerEndpoint extends BaseElement {
 
   public async play() {
     this.logger.info('Sending play to player');
-    const params: KurentoParams = {
+    const params: KurentoInvokeParams = {
       object: this.objId,
       operation: 'play',
       operationParams: {},
@@ -17,7 +17,7 @@ export class PlayerEndpoint extends BaseElement {
     return await this.rpc.kurentoRequest(
       'invoke',
       params,
-      generateResponseSchema()
+      NoValueResponseSchema
     );
   }
 }

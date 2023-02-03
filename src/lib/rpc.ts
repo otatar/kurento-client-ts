@@ -5,6 +5,7 @@ import {
   JSONRPCServer,
   JSONRPCServerAndClient,
 } from 'json-rpc-2.0';
+import { z } from 'zod';
 import { KurentoError, KurentoErrorSchema } from './types/kurento-error';
 import {
   KurentoCreateParams,
@@ -16,7 +17,7 @@ import {
 } from './types/kurento-params';
 import { KurentoEventSchema } from './types/kurento-event';
 import { Log, LogType } from './logger';
-import { z } from 'zod';
+import { NoValueResponseSchema } from './types';
 
 export default class Rpc extends EventEmitter {
   private sessionId: string | undefined;
@@ -114,7 +115,7 @@ export default class Rpc extends EventEmitter {
         this.logger.debug(`Received response: ${JSON.stringify(response)}`);
         return response;
       } else {
-        this.logger.warn(`Can't parse response: ${res}`);
+        this.logger.warn(`Can't parse response: ${JSON.stringify(res)}`);
         return null;
       }
     } catch (e: any) {
@@ -128,6 +129,18 @@ export default class Rpc extends EventEmitter {
         this.logger.error(`Received unknown error: ${JSON.stringify(e)}`);
       }
       return null;
+    }
+  }
+
+  async connect() {
+    this.logger.info('Connecting to kms with sessionId: ' + this.sessionId);
+    const res = await this.kurentoRequest('connect', {}, NoValueResponseSchema);
+    if (res) {
+      this.sessionId = res.sessionId;
+    } else {
+      //Reconnect
+      this.sessionId = undefined;
+      await this.connect();
     }
   }
 

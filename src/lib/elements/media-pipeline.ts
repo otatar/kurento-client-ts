@@ -13,8 +13,10 @@ import {
 } from '../types';
 import { PlayerEndpoint } from './player-endpoint';
 import { RecorderEndpoint } from './recorder-endpoint';
-import { HubPort } from './hub-port';
-import { CompositeHub } from './composite-hub';
+import { HubPort } from '../hubs/hub-port';
+import { CompositeHub } from '../hubs/composite-hub';
+import { DispatcherOneToMany } from '../hubs/dispatcher-one-to-many-hub';
+import { Dispatcher } from '../hubs';
 
 export class MediaPipeline extends BaseElement {
   constructor(objId: string) {
@@ -137,6 +139,52 @@ export class MediaPipeline extends BaseElement {
       return new CompositeHub(res.value);
     } else {
       this.logger.error('Could not create Composite Hub!');
+      return null;
+    }
+  }
+
+  public async createDispatcher() {
+    this.logger.info('Creating Dispatcher Hub');
+    const params: KurentoCreateParams = {
+      type: 'Dispatcher',
+      constructorParams: {
+        mediaPipeline: this.objId,
+      },
+      properties: {},
+    };
+
+    const res = await this.rpc.kurentoRequest(
+      'create',
+      params,
+      ValueStringResponseSchema
+    );
+    if (res) {
+      return new Dispatcher(res.value);
+    } else {
+      this.logger.error('Could not create Dispatcher Hub!');
+      return null;
+    }
+  }
+
+  public async createDispatcherOneToMany() {
+    this.logger.info('Creating DispatcherOneToMany Hub');
+    const params: KurentoCreateParams = {
+      type: 'DispatcherOneToMany',
+      constructorParams: {
+        mediaPipeline: this.objId,
+      },
+      properties: {},
+    };
+
+    const res = await this.rpc.kurentoRequest(
+      'create',
+      params,
+      ValueStringResponseSchema
+    );
+    if (res) {
+      return new DispatcherOneToMany(res.value);
+    } else {
+      this.logger.error('Could not create DispatcherOneToMany Hub!');
       return null;
     }
   }

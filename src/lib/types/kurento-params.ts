@@ -8,66 +8,24 @@ import {
 
 export type KurentoMethod =
   | 'ping'
+  | 'connect'
   | 'create'
   | 'invoke'
+  | 'describe'
   | 'release'
   | 'subscribe'
   | 'unsubscribe';
 
 export type KurentoElements =
+  | 'ServerManager'
   | 'MediaPipeline'
   | 'WebRtcEndpoint'
   | 'PlayerEndpoint'
   | 'RecorderEndpoint'
   | 'Composite'
+  | 'DispatcherOneToMany'
+  | 'Dispatcher'
   | 'HubPort';
-
-/*export type KurentoParams = {
-  type?:
-    | 'MediaPipeline'
-    | 'WebRtcEndpoint'
-    | 'PlayerEndpoint'
-    | 'RecorderEndpoint'
-    | 'Composite'
-    | 'HubPort'
-    | KurentoEventType;
-  object?: string;
-  operation?: string;
-  subscription?: string;
-  constructorParams?: {
-    mediaPipeline?: string;
-    hub?: string;
-    recvonly?: boolean;
-    sendonly?: boolean;
-    useDataChannels?: boolean;
-    certificateKeyType?: CertificateKeyType;
-    qosDscp?: DscpValue;
-    uri?: string;
-    useEnodedMadia?: boolean;
-    networkCache?: number;
-    mediaProfile?: MediaProfile;
-    stopOnEndOfStream?: boolean;
-    latencyStats?: boolean;
-  };
-  operationParams?: {
-    offer?: string;
-    sink?: string;
-    candidate?: {
-      candidate: string;
-      sdpMid: string | null;
-      sdpMLineIndex: number | null;
-    };
-    label?: string;
-    ordered?: boolean;
-    maxPacketLifeTime?: number;
-    maxRetransmits?: number;
-    protocol?: string;
-    channelId?: string;
-    mediaType?: MediaType;
-  };
-  properties?: any;
-  sessionId?: string;
-};*/
 
 export type KurentoCreateParams = {
   type: KurentoElements;
@@ -107,12 +65,17 @@ export type KurentoInvokeParams = {
     protocol?: string;
     channelId?: string;
     mediaType?: MediaType;
+    moduleName?: string;
+    interval?: number;
+    source?: string;
   };
 };
 
 export type KurentoReleaseParams = {
   object: string;
 };
+
+export type KurentoDescribeParams = KurentoReleaseParams;
 
 export type KurentoSubscribeParams = {
   type: KurentoEventType;

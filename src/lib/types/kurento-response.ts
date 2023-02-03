@@ -28,12 +28,29 @@ export function createResponseSchema<T>(schema: z.Schema<T>) {
   });
 }
 
+export const DescribeResponseSchema = z.object({
+  hierarchy: z.array(z.string()),
+  qualifiedType: z.string(),
+  type: z.string(),
+  sessionId: z.string(),
+});
+
 export const PingResponseSchema = z.object({
   value: z.literal('pong'),
 });
 
 export const ValueStringResponseSchema = z.object({
   value: z.string(),
+  sessionId: z.string(),
+});
+
+export const ValueStringArrayResponseSchema = z.object({
+  value: z.array(z.string()),
+  sessionId: z.string(),
+});
+
+export const ValueNumberResponseSchema = z.object({
+  value: z.number(),
   sessionId: z.string(),
 });
 

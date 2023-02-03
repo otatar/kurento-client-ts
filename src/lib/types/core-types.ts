@@ -20,6 +20,9 @@ export interface RecorderEndpointOptions {
   stopOnEndOfStream?: boolean;
 }
 
+const serverType = ['KMS', 'KCS'] as const;
+export type ServerType = (typeof serverType)[number];
+
 const mediaType = ['AUDIO', 'VIDEO', 'DATA'] as const;
 export type MediaType = (typeof mediaType)[number];
 
@@ -54,6 +57,20 @@ export const ElementConnectionSchema = z.object({
 export const ElementConnectionsSchema = z.array(ElementConnectionSchema);
 
 export type ElementConnecton = z.infer<typeof ElementConnectionSchema>;
+
+export const ServerInfoSchema = z.object({
+  version: z.string(),
+  modules: z.array(
+    z.object({
+      version: z.string(),
+      name: z.string(),
+      generationTime: z.string(),
+      factories: z.array(z.string()),
+    })
+  ),
+  type: z.enum(serverType),
+  capabilities: z.array(z.string()),
+});
 
 const mediaProfile = [
   'WEBM',

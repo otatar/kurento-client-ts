@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import Rpc from '../rpc';
 import { KurentoEvent, KurentoEventType } from '../types/kurento-event';
 import {
+  KurentoDescribeParams,
   KurentoInvokeParams,
   KurentoReleaseParams,
   KurentoSubscribeParams,
@@ -10,6 +11,7 @@ import {
 import { Log, LogType } from '../logger';
 import {
   createResponseSchema,
+  DescribeResponseSchema,
   ElementConnectionsSchema,
   MediaType,
   NoValueResponseSchema,
@@ -23,86 +25,6 @@ export default class BaseElement extends EventEmitter {
     super();
     this.rpc = Rpc.getInstance();
     this.logger = Log.getLogInstance();
-
-    /*this.rpc.on('IceCandidateFound', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received IceCandidateFound event');
-        this.emit('IceCandidateFound', event);
-      }
-    });
-
-    this.rpc.on('IceGatheringDone', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received IceGatheringDone event');
-        this.emit('IceGatheringDone', event);
-      }
-    });
-
-    this.rpc.on('IceComponentStateChanged', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received IceComponentStateChanged event');
-        this.emit('IceComponentStateChanged', event);
-      }
-    });
-
-    this.rpc.on('DataChannelOpened', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received DataChannelOpened event');
-        this.emit('DataChannelOpened', event);
-      }
-    });
-
-    this.rpc.on('DataChannelClosed', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received DataChannelClosed event');
-        this.emit('DataChannelClosed', event);
-      }
-    });
-
-    this.rpc.on('NewCandidatePairSelected', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received NewCandidatePairSelected event');
-        this.emit('NewCandidatePairSelected', event);
-      }
-    });
-
-    this.rpc.on('EndOfStream', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received EndOfStream event');
-        this.emit('EndOfStream', event);
-      }
-    });
-
-    this.rpc.on('Recording', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received Recording event');
-        this.emit('Recording', event);
-      }
-    });
-
-    this.rpc.on('Paused', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received Paused event');
-        this.emit('Paused', event);
-      }
-    });
-
-    this.rpc.on('Stopped', (event: KurentoEvent) => {
-      if (event.object && event.object == this.objId) {
-        //This event if for me, forward
-        this.logger.info('Received Stopped event');
-        this.emit('Stopped', event);
-      }
-    });*/
   }
 
   public getObjectId() {
@@ -153,6 +75,28 @@ export default class BaseElement extends EventEmitter {
       params,
       NoValueResponseSchema
     );
+  }
+
+  public async describe() {
+    this.logger.info(`Sending describe for element ${this.objId}`);
+    const params: KurentoDescribeParams = {
+      object: this.objId,
+    };
+    const res = await this.rpc.kurentoRequest(
+      'describe',
+      params,
+      DescribeResponseSchema
+    );
+
+    if (res) {
+      return {
+        hierarchy: res.hierarchy,
+        qualifiedType: res.qualifiedType,
+        type: res.type,
+      };
+    } else {
+      return null;
+    }
   }
 
   public async release() {
